@@ -28,6 +28,18 @@ Balance INT(9) NOT NULL,
 $stmt->execute();
 echo("tblusers created<br>");
 
+// Add users test data
+$hashedpassword=password_hash("password",PASSWORD_DEFAULT);
+echo($hashedpassword);
+$stmt=$conn->prepare("INSERT INTO tblusers
+    (UserID,AccountType,Forename,Surname,Username,Password,DateOfBirth,Balance)
+    VALUES
+    (NULL,'admin','gabriel','zakrzewski','zakrzewski.g', :Password, 01:01:2000, 999999999)
+    (NULL,'user','james','de pree','depree.j', :Password, 01:01:2000, 100000)
+    ");
+$stmt->bindParam(":Password", $hashedpassword);
+$stmt->execute();
+
 // Create sports table
 $stmt=$conn->prepare("DROP TABLE IF EXISTS tblsports;
 CREATE TABLE tblsports
@@ -37,6 +49,14 @@ SportName VARCHAR(30) NOT NULL,
 ");
 $stmt->execute();
 echo("tblsports created<br>");
+
+// Add sports test data
+$stmt=$conn->prepare("INSERT INTO tblsports
+    (SportID,SportName)
+    VALUES
+    (NULL, 'Football')
+    (NULL, 'Basketball')
+    ");
 
 // Create teams table
 $stmt=$conn->prepare("DROP TABLE IF EXISTS tblteams;
