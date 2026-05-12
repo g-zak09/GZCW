@@ -13,7 +13,7 @@ $conn->exec($sql);
 echo("DB created successfully<br>");
 
 // Create users table
-$stmt=$conn->prepare("DROP TABLE IF EXISTS tblusers;
+$stmtUsers=$conn->prepare("DROP TABLE IF EXISTS tblusers;
 CREATE TABLE tblusers
 (UserID INT(4) UNSIGNED AUTO_INCREMENT PRIMARY  KEY,
 AccountType ENUM('Admin', 'User') NOT NULL,
@@ -25,49 +25,48 @@ DateOfBirth DATE NOT NULL,
 Balance INT(9) NOT NULL
 );
 ");
-$stmt->execute();
+$stmtUsers->execute();
 echo("tblusers created<br>");
 
 // Add users test data
 $hashedpassword1=password_hash("password",PASSWORD_DEFAULT);
 echo($hashedpassword1."<br>");
-$stmt=$conn->prepare("INSERT INTO tblusers
+$stmtUsersTD=$conn->prepare("INSERT INTO tblusers
     (UserID,AccountType,Forename,Surname,Username,Password,DateOfBirth,Balance)
     VALUES
     (NULL,'Admin','gabriel','zakrzewski','zakrzewski.g', :Password, '2000-01-01', 999999999)
     ");
-$stmt->bindParam(":Password", $hashedpassword1);
-$stmt->execute();
+$stmtUsersTD->bindParam(":Password", $hashedpassword1);
+$stmtUsersTD->execute();
 
 $hashedpassword2=password_hash("password",PASSWORD_DEFAULT);
 echo($hashedpassword2."<br>");
-$stmt=$conn->prepare("INSERT INTO tblusers
+$stmtUsersTD=$conn->prepare("INSERT INTO tblusers
     (UserID,AccountType,Forename,Surname,Username,Password,DateOfBirth,Balance)
     VALUES
-    (NULL,'User','james','depree','depree.j', :Password, '2000-01-01', 100000)
+    (NULL,'User','james','depree','depree.j', :Password, '2000-01-01', 1000)
     ");
-$stmt->bindParam(":Password", $hashedpassword2);
-$stmt->execute();
+$stmtUsersTD->bindParam(":Password", $hashedpassword2);
+$stmtUsersTD->execute();
 echo("tblusers test data added<br>");
 
 // Create sports table
-$stmt=$conn->prepare("DROP TABLE IF EXISTS tblsports;
+$stmtSports=$conn->prepare("DROP TABLE IF EXISTS tblsports;
 CREATE TABLE tblsports
 (SportID INT(3) UNSIGNED AUTO_INCREMENT PRIMARY  KEY,
 SportName VARCHAR(30) NOT NULL
 );
 ");
-$stmt->execute();
+$stmtSports->execute();
 echo("tblsports created<br>");
 
 // Add sports test data
-$stmt=$conn->prepare("INSERT INTO tblsports
+$stmtSportsTD=$conn->prepare("INSERT INTO tblsports
     (SportID,SportName)
     VALUES
-    (NULL, 'Football'),
     (NULL, 'Basketball')
     ");
-$stmt->execute();
+$stmtSportsTD->execute();
 echo("tblsports test data added<br>");
 
 // Create teams table
@@ -82,19 +81,17 @@ $stmt->execute();
 echo("tblteams created<br>");
 
 // Add teams test data
-$stmt=$conn->prepare("INSERT INTO tblteams
+$stmtTeamsTD=$conn->prepare("INSERT INTO tblteams
     (TeamID,SportID,TeamName)
     VALUES
-    (NULL, 1, 'Tottenham'),
-    (NULL, 1, 'Arsenal'),
-    (NULL, 2, 'Los Angeles Lakers'),
-    (NULL, 2, 'San Antonio Spurs')
+    (NULL, 1, 'Los Angeles Lakers'),
+    (NULL, 1, 'San Antonio Spurs')
     ");
-$stmt->execute();
+$stmtTeamsTD->execute();
 echo("tblteams test data added<br>");
 
 // Create sporting events table
-$stmt=$conn->prepare("DROP TABLE IF EXISTS tblevents;
+$stmtEvents=$conn->prepare("DROP TABLE IF EXISTS tblevents;
 CREATE TABLE tblevents
 (EventID INT(5) UNSIGNED AUTO_INCREMENT PRIMARY  KEY,
 SportID INT(3) UNSIGNED NOT NULL,
@@ -104,42 +101,49 @@ EventDate DATE NOT NULL,
 EventTime TIME NOT NULL,
 HomeWinOdds DEC(4,2) NOT NULL,
 AwayWinOdds DEC(4,2) NOT NULL,
-Result ENUM('Home', 'Away', 'Draw', 'Pending') NOT NULL
+Result ENUM('Home', 'Away', 'Pending') NOT NULL
 );
 ");
-$stmt->execute();
+$stmtEvents->execute();
 echo("tblevents created<br>");
 
 // Add sporting events test data
-$stmt=$conn->prepare("INSERT INTO tblevents
+$stmtEventsTD=$conn->prepare("INSERT INTO tblevents
     (EventID,SportID,HomeTeamID,AwayTeamID,EventDate,EventTime,HomeWinOdds,AwayWinOdds,Result)
     VALUES
-    (NULL, 1, 1, 2, '2024-07-01', '15:00:00', 1.50, 2.50, 'Home'),
-    (NULL, 2, 3, 4, '2024-07-02', '18:00:00', 1.80, 2.20, 'Away'),
-    (NULL, 1, 2, 1, '2024-07-03', '20:00:00', 2.50, 1.50, 'Draw'),
-    (NULL, 2, 4, 3, '2024-07-04', '19:00:00', 2.20, 1.80, 'Pending')
-
+    (NULL, 1, 1, 2, '2026-07-01', '15:00:00', 1.50, 2.50, 'Home'),
+    (NULL, 1, 2, 1, '2026-07-02', '18:00:00', 1.80, 2.20, 'Home')
     ");
-$stmt->execute();
+$stmtEventsTD->execute();
 echo("tblevents test data added<br>");
 
 
 // Create bets table
-$stmt=$conn->prepare("DROP TABLE IF EXISTS tblbets;
+$stmtBets=$conn->prepare("DROP TABLE IF EXISTS tblbets;
 CREATE TABLE tblbets
 (BetID INT(6) UNSIGNED AUTO_INCREMENT PRIMARY  KEY,
 SportID INT(3) UNSIGNED NOT NULL,
 EventID INT(5) UNSIGNED NOT NULL,
 BetAmount INT(6) NOT NULL,
-UserBetPrediction ENUM('Home', 'Away', 'Draw') NOT NULL,
+UserBetPrediction ENUM('Home', 'Away') NOT NULL,
 UserBetResult ENUM('Win', 'Loss'),
 BetDateTime DATETIME(0) NOT NULL,
 BetOdds DEC(4,2) NOT NULL
 );
 ");
-$stmt->execute();
+$stmtBets->execute();
 echo("tblbets created<br>");
 
-
+// Add bets test data
+$stmtBetsTD=$conn->prepare("INSERT INTO tblbets
+    (BetID,SportID,EventID,BetAmount,UserBetPrediction,UserBetResult,BetDateTime,BetOdds)
+    VALUES
+    (NULL, 1, 1, 100, 'Home', 'Win', '2026-04-10', '00:00:00', 1.50),
+    (NULL, 1, 1, 50, 'Away', 'Loss', '2026-04-10', '00:00:00', 2.50),
+    (NULL, 1, 2, 100, 'Home', 'Win', '2026-04-10', '00:00:00', 1.80),
+    (NULL, 1, 2, 200, 'Away', 'Loss', '2026-04-10', '00:00:00', 2.20)
+    ");
+$stmtBetsTD->execute();
+echo("tblbets test data added<br>");
 
 ?>
