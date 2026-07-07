@@ -44,3 +44,4 @@ catch(PDOException $e)
     echo("error: " . $e->getMessage());
 }
 ?>
+test
