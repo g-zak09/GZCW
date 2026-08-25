@@ -26,8 +26,6 @@ try{
                 $_SESSION["firstname"]=$row["Forename"];//session variable, global, lasts until browser closed
                 $_SESSION["loggedinuser"]=$row["UserID"];
                 $_SESSION["admin"]=$row["Role"];
-
-                
             }
             else{
                 echo("Incorrect password");

@@ -15,7 +15,7 @@ echo("DB created successfully<br>");
 // Create users table
 $stmtUsers=$conn->prepare("DROP TABLE IF EXISTS tblusers;
 CREATE TABLE tblusers
-(UserID INT(4) UNSIGNED AUTO_INCREMENT PRIMARY  KEY,
+(UserID INT(4) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 AccountType ENUM('Admin', 'User') NOT NULL,
 Forename VARCHAR(30) NOT NULL,
 Surname VARCHAR(30) NOT NULL,
@@ -34,7 +34,7 @@ echo($hashedpassword1."<br>");
 $stmtUsersTD=$conn->prepare("INSERT INTO tblusers
     (UserID,AccountType,Forename,Surname,Username,Password,DateOfBirth,Balance)
     VALUES
-    (NULL,'Admin','gabriel','zakrzewski','zakrzewski.g', :Password, '2000-01-01', 999999999)
+    (NULL, 'Admin', 'gabriel', 'zakrzewski', 'zakrzewski.g', :Password, '2000-01-01', 999999999)
     ");
 $stmtUsersTD->bindParam(":Password", $hashedpassword1);
 $stmtUsersTD->execute();
@@ -47,7 +47,12 @@ $stmtUsersTD=$conn->prepare("INSERT INTO tblusers
     (NULL,'User','james','depree','depree.j', :Password, '2000-01-01', 1000)
     ");
 $stmtUsersTD->bindParam(":Password", $hashedpassword2);
-$stmtUsersTD->execute();
+try {
+    $stmtUsersTD->execute();
+}
+catch(PDOException $e) {
+    echo "ERROR: " . $e->getMessage();
+}
 echo("tblusers test data added<br>");
 
 // Create sports table
