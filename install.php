@@ -3,25 +3,34 @@
 $servername = "localhost";
 $username = "root";
 $password = "root";
+$database = "GZCW";
 
-try {
     // Connect to server
     $conn = new PDO(
-        "mysql:host=$servername",
+        "mysql:host=$servername;charset=utf8mb4",
         $username,
         $password,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ]
+        );
+
+    // Create and select the database
+    $conn->exec(
+        "CREATE DATABASE IF NOT EXISTS `$database`
+         CHARACTER SET utf8mb4
+         COLLATE utf8mb4_unicode_ci"
     );
 
-    // Create DB
-    $conn->exec("CREATE DATABASE IF NOT EXISTS GZCW");
-    $conn->exec("USE GZCW");
-    echo("DB created successfully<br>");
+    $conn->exec("USE `$database`");
 
-    
-     //Drop existing tables
-     //Child tables are dropped before parent tables because of foreign keys
-     
+    echo("Database created successfully<br>");
+
+    /*
+     * Drop existing tables
+     * Child tables are dropped before parent tables because of foreign keys
+     */
     $conn->exec("DROP TABLE IF EXISTS tblbets");
     $conn->exec("DROP TABLE IF EXISTS tblevents");
     $conn->exec("DROP TABLE IF EXISTS tblteams");
@@ -248,9 +257,7 @@ try {
     );
 
     echo("tblbets test data added<br>");
-    echo("Installation completed<br>"); 
-
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
+    echo("Installation completed successfully.<br>");
+    echo("<br>Test login: depree.j / password<br>");
+    echo("Admin login: zakrzewski.g / password<br>");
 ?>

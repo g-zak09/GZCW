@@ -1,44 +1,51 @@
 <?php
-session_start();//to allow session variables
-//header("location: .php");
-print_r($_POST);
-array_map("htmlspecialchars", $_POST); //inputs cannot inject html
-include_once("connection.php");//equivalent of import
+// login.php authenticates the submitted username and password.
 
-try{
-    $stmt=$conn->prepare("SELECT * FROM tblusers WHERE Username=:Username;");
-    $stmt->bindParam(":Username", $_POST["username"]);
-    $stmt->execute();
-    
-    if ($stmt->rowCount() == 0) {
-        echo("Invalid Username.");
-    }
-    else{
-        //check password
-        while($row=$stmt->fetch(PDO::FETCH_ASSOC))
-        {
-            print_r($row);
-            $hashed=$row["Password"];
-            $attempt=$_POST["password"];
+include_once("connection.php");
+include_once("functions.php");
 
-            if(password_verify($attempt,$hashed)){
-                echo("Correct password, login successful");
-                $_SESSION["firstname"]=$row["Forename"];//session variable, global, lasts until browser closed
-                $_SESSION["loggedinuser"]=$row["UserID"];
-                $_SESSION["admin"]=$row["Role"];
-            }
-            else{
-                echo("Incorrect password");
-            }
-            //echo($row["Name"]." ".$row["Description"]." ".$row["Price"]);
-            echo("<br>");
-        }
-
-        echo("ok");
-    }
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: loginpage.php");
+    exit;
 }
-catch(PDOException $e)
-{
-    echo("error: " . $e->getMessage());
+
+$usernameInput = trim($_POST["username"] ?? "");
+$passwordAttempt = $_POST["password"] ?? "";
+
+if ($usernameInput === "" || $passwordAttempt === "") {
+    setFlash("error", "Enter both a username and password.");
+    header("Location: loginpage.php");
+    exit;
+}
+
+try {
+    $stmt = $conn->prepare("SELECT * FROM tblusers WHERE Username = :username LIMIT 1");
+    $stmt->execute([":username" => $usernameInput]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row || !password_verify($passwordAttempt, $row["Password"])) {
+        setFlash("error", "Incorrect username or password.");
+        header("Location: loginpage.php");
+        exit;
+    }
+
+    // Regenerating the session ID reduces the risk of session fixation.
+    session_regenerate_id(true);
+    $_SESSION["firstname"] = $row["Forename"];
+    $_SESSION["loggedinuser"] = $row["UserID"];
+    $_SESSION["accounttype"] = $row["AccountType"];
+
+    if ($row["AccountType"] === "Admin") {
+        header("Location: admin_dashboard.php");
+    }
+    else {
+        header("Location: dashboard.php");
+    }
+    exit;
+}
+catch (PDOException $e) {
+    setFlash("error", "Login could not be completed. Please try again.");
+    header("Location: loginpage.php");
+    exit;
 }
 ?>
