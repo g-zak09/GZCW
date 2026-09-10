@@ -1,5 +1,5 @@
 <?php
-// adduser.php validates the signup form and inserts a new user into tblusers.
+// adduser.php validates the signup form and inserts a new user into tblusers
 
 include_once("connection.php");
 include_once("functions.php");
@@ -15,35 +15,35 @@ $usernameInput = trim($_POST["username"] ?? "");
 $passwordInput = $_POST["password"] ?? "";
 $dateOfBirth = $_POST["dateofbirth"] ?? "";
 
-// Validation: all fields must contain data.
+// Validation: all fields must contain data
 if ($forename === "" || $surname === "" || $usernameInput === "" || $passwordInput === "" || $dateOfBirth === "") {
     setFlash("error", "All signup fields must be completed.");
     header("Location: signup.php");
     exit;
 }
 
-// Validation: names may contain letters, spaces, apostrophes and hyphens.
+// Validation: names may contain letters, spaces, apostrophes and hyphens
 if (!preg_match("/^[\\p{L} '-]+$/u", $forename) || !preg_match("/^[\\p{L} '-]+$/u", $surname)) {
     setFlash("error", "Forename and surname can only contain letters, spaces, apostrophes and hyphens.");
     header("Location: signup.php");
     exit;
 }
 
-// Validation: username length and allowed characters.
+// Validation: username length and allowed characters
 if (strlen($usernameInput) < 3 || strlen($usernameInput) > 30 || !preg_match("/^[A-Za-z0-9._-]+$/", $usernameInput)) {
     setFlash("error", "Username must be 3-30 characters and can use letters, numbers, dots, underscores and hyphens.");
     header("Location: signup.php");
     exit;
 }
 
-// Validation: password must meet the requirement in the table design.
+// Validation: password must meet the requirement in the table design
 if (strlen($passwordInput) < 8) {
     setFlash("error", "Password must contain at least 8 characters.");
     header("Location: signup.php");
     exit;
 }
 
-// Validation: date must be real and user must be at least 18.
+// Validation: date must be real and user must be at least 18
 $dobObject = DateTime::createFromFormat("Y-m-d", $dateOfBirth);
 $dobErrors = DateTime::getLastErrors();
 $dateIsValid = $dobObject && ($dobErrors === false || ($dobErrors["warning_count"] === 0 && $dobErrors["error_count"] === 0));
@@ -55,7 +55,7 @@ if (!$dateIsValid || calculateAge($dateOfBirth) < 18) {
 }
 
 try {
-    // Check that the username is unique before trying to insert it.
+    // Check that the username is unique before trying to insert it
     $stmtCheck = $conn->prepare("SELECT UserID FROM tblusers WHERE Username = :username");
     $stmtCheck->execute([":username" => $usernameInput]);
 
@@ -65,7 +65,7 @@ try {
         exit;
     }
 
-    // Users cannot choose Admin or their starting balance themselves.
+    // Users cannot choose Admin or their starting balance themselves
     $accountType = "User";
     $startingBalance = 1000;
     $hashedPassword = password_hash($passwordInput, PASSWORD_DEFAULT);

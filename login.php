@@ -29,7 +29,7 @@ try {
         exit;
     }
 
-    // Regenerating the session ID reduces the risk of session fixation.
+    // Regenerating the session ID reduces the risk of session fixation
     session_regenerate_id(true);
     $_SESSION["firstname"] = $row["Forename"];
     $_SESSION["loggedinuser"] = $row["UserID"];

@@ -3,34 +3,24 @@
 $servername = "localhost";
 $username = "root";
 $password = "root";
-$database = "GZCW";
 
     // Connect to server
     $conn = new PDO(
-        "mysql:host=$servername;charset=utf8mb4",
+        "mysql:host=$servername;",
         $username,
         $password,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::ATTR_EMULATE_PREPARES => false]
         );
 
-    // Create and select the database
-    $conn->exec(
-        "CREATE DATABASE IF NOT EXISTS `$database`
-         CHARACTER SET utf8mb4
-         COLLATE utf8mb4_unicode_ci"
-    );
-
-    $conn->exec("USE `$database`");
-
+    // Create database
+    $conn->exec("CREATE DATABASE IF NOT EXISTS GZCW");
+    $conn->exec("USE GZCW");
     echo("Database created successfully<br>");
 
-    /*
-     * Drop existing tables
-     * Child tables are dropped before parent tables because of foreign keys
-     */
+    
+     //Drop existing tables
+     //Child tables are dropped before parent tables because of foreign keys
+
     $conn->exec("DROP TABLE IF EXISTS tblbets");
     $conn->exec("DROP TABLE IF EXISTS tblevents");
     $conn->exec("DROP TABLE IF EXISTS tblteams");
@@ -38,7 +28,7 @@ $database = "GZCW";
     $conn->exec("DROP TABLE IF EXISTS tblusers");
 
     // Create users table
-    // Username is UNIQUE because the username is used to identify one account at login
+    // Username is unique because the username is used to identify one account at login
     $conn->exec(
         "CREATE TABLE tblusers (
             UserID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
