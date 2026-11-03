@@ -1,18 +1,17 @@
 <?php
 // login.php authenticates the submitted username and password.
-
 include_once("connection.php");
-include_once("functions.php");
+//include_once("functions.php");
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: loginpage.php");
     exit;
 }
 
-$usernameInput = trim($_POST["username"] ?? "");
+$usernameInp = trim($_POST["username"] ?? "");
 $passwordAttempt = $_POST["password"] ?? "";
 
-if ($usernameInput === "" || $passwordAttempt === "") {
+if ($usernameInp === "" || $passwordAttempt === "") {
     setFlash("error", "Enter both a username and password.");
     header("Location: loginpage.php");
     exit;
@@ -20,7 +19,7 @@ if ($usernameInput === "" || $passwordAttempt === "") {
 
 try {
     $stmt = $conn->prepare("SELECT * FROM tblusers WHERE Username = :username LIMIT 1");
-    $stmt->execute([":username" => $usernameInput]);
+    $stmt->execute([":username" => $usernameInp]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row || !password_verify($passwordAttempt, $row["Password"])) {
