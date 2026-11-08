@@ -1,29 +1,20 @@
 <?php
-
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$database = "GZCW";
+$servername="localhost";
+$username="root";
+$password="root";
 
 // Connect to server
-$conn = new PDO(
-    "mysql:host=$servername;charset=utf8mb4",$username,$password,
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::ATTR_EMULATE_PREPARES => false]
-    );
+$conn=new PDO("mysql:host=$servername", $username, $password);
+$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Create and select the database
-$conn->exec(
-    "CREATE DATABASE IF NOT EXISTS `$database`
-);
+// Create database
+$conn->exec("CREATE DATABASE IF NOT EXISTS GZCW");
+$conn->exec("USE GZCW");
+echo("DB created successfully<br>");
 
-$conn->exec("USE `$database`");
+// Drop existing tables
+// Child tables are dropped before parent tables because of foreign keys
 
-echo("Database created successfully<br>");
-
-/*
-    * Drop existing tables
-    * Child tables are dropped before parent tables because of foreign keys
-    */
 $conn->exec("DROP TABLE IF EXISTS tblbets");
 $conn->exec("DROP TABLE IF EXISTS tblevents");
 $conn->exec("DROP TABLE IF EXISTS tblteams");
@@ -42,7 +33,7 @@ $conn->exec(
         Password VARCHAR(255) NOT NULL,
         DateOfBirth DATE NOT NULL,
         Balance INT UNSIGNED NOT NULL DEFAULT 1000
-    ) ENGINE=InnoDB"
+    )"
 );
 
 echo("tblusers created<br>");
@@ -65,7 +56,7 @@ $stmtUsers->execute([
     ":balance" => 999999999
 ]);
 
-// This balance is 1060 because of the bets placed in the test data below.
+// This balance is 1060 because of the bets placed in the test data below
 // Starting 1000 - 100 stake + 210 payout - 50 losing stake = 1060
 $stmtUsers->execute([
     ":account_type" => "User",
@@ -79,14 +70,13 @@ $stmtUsers->execute([
 
 echo("tblusers test data added<br>");
 
-// Create sports table.
+// Create sports table
 $conn->exec(
     "CREATE TABLE tblsports (
-        SportID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        SportID INT(3) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         SportName VARCHAR(30) NOT NULL UNIQUE
-    ) ENGINE=InnoDB"
+    )"
 );
-
 echo("tblsports created<br>");
 
 // Add sports test data
@@ -107,12 +97,8 @@ $conn->exec(
     "CREATE TABLE tblteams (
         TeamID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         SportID INT UNSIGNED NOT NULL,
-        TeamName VARCHAR(50) NOT NULL,
-        CONSTRAINT fk_team_sport
-            FOREIGN KEY (SportID) REFERENCES tblsports(SportID)
-            ON UPDATE CASCADE ON DELETE RESTRICT,
-        UNIQUE KEY unique_team_per_sport (SportID, TeamName)
-    ) ENGINE=InnoDB"
+        TeamName VARCHAR(50) NOT NULL
+    )"
 );
 
 echo("tblteams created<br>");
@@ -128,11 +114,7 @@ $conn->exec(
         (2, 'Los Angeles Lakers'),
         (2, 'San Antonio Spurs'),
         (2, 'Boston Celtics'),
-        (2, 'Golden State Warriors'),
-        (3, 'Ferrari'),
-        (3, 'McLaren'),
-        (3, 'Mercedes'),
-        (3, 'Red Bull Racing')"
+        (2, 'Golden State Warriors')"
 );
 
 echo("tblteams test data added<br>");
@@ -151,17 +133,8 @@ $conn->exec(
         HomeWinOdds DECIMAL(4, 2) NOT NULL,
         DrawOdds DECIMAL(4, 2) DEFAULT NULL,
         AwayWinOdds DECIMAL(4, 2) NOT NULL,
-        Result ENUM('Home', 'Draw', 'Away', 'Pending') NOT NULL DEFAULT 'Pending',
-        CONSTRAINT fk_event_sport
-            FOREIGN KEY (SportID) REFERENCES tblsports(SportID)
-            ON UPDATE CASCADE ON DELETE RESTRICT,
-        CONSTRAINT fk_event_home_team
-            FOREIGN KEY (HomeTeamID) REFERENCES tblteams(TeamID)
-            ON UPDATE CASCADE ON DELETE RESTRICT,
-        CONSTRAINT fk_event_away_team
-            FOREIGN KEY (AwayTeamID) REFERENCES tblteams(TeamID)
-            ON UPDATE CASCADE ON DELETE RESTRICT
-    ) ENGINE=InnoDB"
+        Result ENUM('Home', 'Draw', 'Away', 'Pending') NOT NULL DEFAULT 'Pending'
+    )"
 );
 
 echo("tblevents created<br>");
@@ -204,16 +177,7 @@ $conn->exec(
         BetDateTime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         BetOdds DECIMAL(4, 2) NOT NULL,
         Payout INT UNSIGNED NOT NULL DEFAULT 0,
-        CONSTRAINT fk_bet_user
-            FOREIGN KEY (UserID) REFERENCES tblusers(UserID)
-            ON UPDATE CASCADE ON DELETE RESTRICT,
-        CONSTRAINT fk_bet_sport
-            FOREIGN KEY (SportID) REFERENCES tblsports(SportID)
-            ON UPDATE CASCADE ON DELETE RESTRICT,
-        CONSTRAINT fk_bet_event
-            FOREIGN KEY (EventID) REFERENCES tblevents(EventID)
-            ON UPDATE CASCADE ON DELETE RESTRICT
-    ) ENGINE=InnoDB"
+    )"
 );
 
 echo("tblbets created<br>");
@@ -236,9 +200,9 @@ $conn->exec(
         (2, 2, 3, 50,  'Home', 'Loss', '2026-08-21 17:00:00', 1.70, 0)"
 );
 
-echo("tblbets test data added<br>" . "Success!");
-echo("<br>Test login: depree.j / password<br>");
-echo("Admin login: zakrzewski.g / password<br>");
+echo("tblbets test data added<br>" . "successful");
+echo("<br>Test login: depree.j password<br>");
+echo("Admin login: zakrzewski.g password<br>");
 
 
 ?>

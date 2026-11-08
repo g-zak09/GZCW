@@ -42,6 +42,8 @@ $stmtAdd->execute([
     "balance" => $startingBalance
 ]);
 
+echo("pass");
+
 setFlash("success", "Account created successfully. You can now log in.");
 //header("Location: loginpage.php");
 exit;
