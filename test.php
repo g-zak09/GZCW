@@ -46,27 +46,29 @@ $stmtUsers = $conn->prepare(
         :account_type, :forename, :surname, :username, :password, :date_of_birth, :balance)"
 );
 
-$stmtUsers->execute([
-    ":account_type" => "Admin",
+$hashedpassword1=password_hash("password", PASSWORD_DEFAULT);
+echo($hashedpassword1);
+$stmtUsers->execute(
+    [":account_type" => "Admin",
     ":forename" => "gabriel",
     ":surname" => "zakrzewski",
     ":username" => "zakrzewski.g",
-    ":password" => password_hash("password", PASSWORD_DEFAULT),
+    ":password" => $hashedpassword1,
     ":date_of_birth" => "2000-01-01",
-    ":balance" => 999999999
-]);
+    ":balance" => 999999999]
+    );
 
-// This balance is 1060 because of the bets placed in the test data below
-// Starting 1000 - 100 stake + 210 payout - 50 losing stake = 1060
-$stmtUsers->execute([
-    ":account_type" => "User",
+$hashedpassword2=password_hash("password", PASSWORD_DEFAULT);
+echo($hashedpassword2);
+$stmtUsers->execute(
+    [":account_type" => "User",
     ":forename" => "james",
     ":surname" => "depree",
     ":username" => "depree.j",
-    ":password" => password_hash("password", PASSWORD_DEFAULT),
+    ":password" => $hashedpassword2,
     ":date_of_birth" => "2000-01-01",
-    ":balance" => 1060
-]);
+    ":balance" => 1060]
+    );
 
 echo("tblusers test data added<br>");
 
